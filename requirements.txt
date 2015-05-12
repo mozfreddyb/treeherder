@@ -1,4 +1,6 @@
 -r requirements/common.txt
--r requirements/heroku.txt
 -r requirements/prod.txt
+# heroku-only requirements
 pylibmc==1.4.2
+django-pylibmc==0.5.0
+django-heroku-memcacheify==0.8
