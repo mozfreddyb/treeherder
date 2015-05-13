@@ -551,6 +551,21 @@ class TreeherderCollection(object):
         for d in self.data:
             d.validate()
 
+    def get_chunks(self, chunk_size):
+        """
+        Break this collection into chunks of size ``chunk_size``.
+        """
+        artifact_collections = []
+        data_chunks = [self.data[o:o + chunk_size] for o
+                  in range(0, len(self.data), chunk_size)]
+
+        for datum in data_chunks:
+            ac = self.__class__(datum)
+
+            artifact_collections.append(self.__class__(datum))
+
+        return artifact_collections
+
 
 class TreeherderJobCollection(TreeherderCollection):
     """

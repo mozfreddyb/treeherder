@@ -10,6 +10,8 @@ from treeherder.etl.oauth_utils import OAuthCredentials
 logger = logging.getLogger(__name__)
 
 
+CHUNK_SIZE = 50
+
 def post_treeherder_collections(th_collections):
     errors = []
     for project in th_collections:
@@ -27,14 +29,18 @@ def post_treeherder_collections(th_collections):
         logger.info(
             "collection loading request: {0}".format(
                 th_request.get_uri(th_collections[project].endpoint_base)))
-        response = th_request.post(th_collections[project])
 
-        if not response or response.status_code != 200:
-            errors.append({
-                "project": project,
-                "url": th_collections[project].endpoint_base,
-                "message": response.text
-            })
+        collection_chunks = th_collections[project].get_chunks(CHUNK_SIZE)
+
+        for collection in collection_chunks:
+            response = th_request.post(collection)
+
+            if not response or response.status_code != 200:
+                errors.append({
+                    "project": project,
+                    "url": th_collections[project].endpoint_base,
+                    "message": response.text
+                })
 
     if errors:
         raise CollectionNotLoadedException(errors)
